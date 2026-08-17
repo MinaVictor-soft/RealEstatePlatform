@@ -1,0 +1,10 @@
+.vs/
+**/bin/
+**/obj/
+Frontend/dist/
+Frontend/node_modules/
+_build/
+*.user
+*.suo
+*.cache
+Frontend/.env

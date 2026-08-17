@@ -1,0 +1,16 @@
+Backend prompts used for the Property Collection & Payment Forecast work:
+
+1. Build the minimal ASP.NET Core 8 backend foundation for the POC.
+2. Implement only the core entities: Customer, Unit, Contract, Installment, Payment.
+3. Make the calculation configuration-driven and deterministic.
+4. Expose:
+   - POST /api/contracts
+   - POST /api/contracts/{id}/generate-schedule
+   - GET /api/contracts/{id}
+   - GET /api/contracts/{id}/installments
+   - POST /api/contracts/{id}/payments
+   - GET /api/contracts/{id}/forecast?months=3
+5. Use EF Core, PostgreSQL first, then switch to local SQL Server.
+6. Add seed/demo data and focused calculation tests.
+7. Remove POC naming from the codebase.
+8. Verify and fix the current API contract and end-to-end flow.
