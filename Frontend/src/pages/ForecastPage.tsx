@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getForecast } from '../api/contractsApi';
 import { ErrorState, LoadingState } from '../components/Feedback';
@@ -15,25 +15,89 @@ export function ForecastPage() {
   const [forecast, setForecast] = useState<ForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reloadSeed, setReloadSeed] = useState(0);
+  const cacheRef = useRef<Record<number, ForecastResponse>>({});
+  const requestTokenRef = useRef(0);
 
-  async function load(selectedMonths = months) {
-    setLoading(true);
-    setError('');
-    try {
-      setForecast(await getForecast(id, selectedMonths));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('error'));
-    } finally {
-      setLoading(false);
-    }
+  function setCachedForecast(selectedMonths: number) {
+   const cached = cacheRef.current[selectedMonths];
+   if (cached) {
+     setForecast(cached);
+     return true;
+   }
+   return false;
   }
 
   useEffect(() => {
-    void load(months);
-  }, [id, months]);
+   let active = true;
+   const token = ++requestTokenRef.current;
 
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} onRetry={() => load()} />;
+   async function loadAll() {
+     setLoading(true);
+     setError('');
+     try {
+       const responses = await Promise.all(
+         options.map(async (option) => [option, await getForecast(id, option)] as const),
+       );
+       if (!active || token !== requestTokenRef.current) {
+         return;
+       }
+
+       cacheRef.current = Object.fromEntries(responses);
+       const fallbackForecast = responses[0]![1];
+       setForecast(cacheRef.current[months] ?? fallbackForecast);
+     } catch (err) {
+       if (active && token === requestTokenRef.current) {
+         setError(err instanceof Error ? err.message : t('error'));
+       }
+     } finally {
+       if (active && token === requestTokenRef.current) {
+         setLoading(false);
+       }
+     }
+   }
+
+   cacheRef.current = {};
+   setForecast(null);
+   void loadAll();
+
+   return () => {
+     active = false;
+   };
+  }, [id, reloadSeed]);
+
+  useEffect(() => {
+   if (loading) {
+     return;
+   }
+   if (!setCachedForecast(months)) {
+     const token = ++requestTokenRef.current;
+     setError('');
+     setLoading(true);
+     void getForecast(id, months)
+       .then((result) => {
+         if (token !== requestTokenRef.current) {
+           return;
+         }
+         cacheRef.current[months] = result;
+         setForecast(result);
+       })
+       .catch((err) => {
+         if (token === requestTokenRef.current) {
+           setError(err instanceof Error ? err.message : t('error'));
+         }
+       })
+       .finally(() => {
+         if (token === requestTokenRef.current) {
+           setLoading(false);
+         }
+       });
+   }
+  }, [id, months, loading, t]);
+
+  const showLoading = loading && !forecast;
+  if (showLoading) return <LoadingState />;
+  if (error) return <ErrorState message={error} onRetry={() => setReloadSeed((value) => value + 1)} />;
   if (!forecast) return null;
 
   return (
@@ -50,17 +114,24 @@ export function ForecastPage() {
           </div>
           <Link className="button secondary" to={`/contracts/${id}`}>{t('backToDetails')}</Link>
         </div>
-        <div className="page-hero">
-          <label className="inline-select">
-            <span>{t('months')}</span>
-            <select value={months} onChange={(e) => setMonths(Number(e.target.value))}>
-              {options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="forecast-toolbar">
+          <div className="forecast-toolbar-left">
+            <label className="inline-select">
+              <span>{t('months')}</span>
+              <select
+                value={months}
+                onChange={(e) => setMonths(Number(e.target.value))}
+                aria-busy={loading && forecast ? 'true' : 'false'}
+              >
+                {options.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {loading && forecast ? <div className="inline-loading">{t('loading')}</div> : null}
+          </div>
           <div className="forecast-visual">
             <div className="forecast-bars">
               <div className="forecast-bar paid" style={{ width: `${(forecast.currentPaid / forecast.contractValue) * 100}%` }} />

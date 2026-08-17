@@ -49,7 +49,8 @@ export function DashboardPage() {
     }
   }
 
-  if (loading) return <LoadingState />;
+  const showLoading = loading && !dashboard;
+  if (showLoading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   if (!dashboard) return null;
 
@@ -69,12 +70,17 @@ export function DashboardPage() {
         </div>
         <label className="inline-select">
           <span>{t('months')}</span>
-          <select value={months} onChange={(e) => setMonths(Number(e.target.value))}>
+          <select
+            value={months}
+            onChange={(e) => setMonths(Number(e.target.value))}
+            aria-busy={loading && dashboard ? 'true' : 'false'}
+          >
             <option value={3}>3</option>
             <option value={6}>6</option>
             <option value={12}>12</option>
           </select>
         </label>
+        {loading && dashboard ? <div className="inline-loading">{t('loading')}</div> : null}
         <div className="metric-grid">
           <Metric label={t('totalContracts')} value={String(dashboard.totalContracts)} />
           <Metric label={t('totalContractValue')} value={formatMoney(dashboard.totalContractValue, language)} />

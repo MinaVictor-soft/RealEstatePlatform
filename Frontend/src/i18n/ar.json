@@ -54,6 +54,8 @@
   "invalidDate": "أدخل تاريخاً صحيحاً.",
   "cancel": "إلغاء",
   "back": "رجوع",
+  "hideSidebar": "إخفاء الشريط الجانبي",
+  "showSidebar": "إظهار الشريط الجانبي",
   "contractCreated": "تم إنشاء العقد بنجاح.",
   "scheduleGenerated": "تم إنشاء جدول الأقساط بنجاح.",
   "paymentAdded": "تم تسجيل الدفعة بنجاح.",

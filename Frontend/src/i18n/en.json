@@ -54,6 +54,8 @@
   "invalidDate": "Enter a valid date.",
   "cancel": "Cancel",
   "back": "Back",
+  "hideSidebar": "Hide sidebar",
+  "showSidebar": "Show sidebar",
   "contractCreated": "Contract created successfully.",
   "scheduleGenerated": "Schedule generated successfully.",
   "paymentAdded": "Payment recorded successfully.",
