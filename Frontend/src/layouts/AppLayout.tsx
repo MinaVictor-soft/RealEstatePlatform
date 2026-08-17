@@ -49,7 +49,7 @@ export function AppLayout() {
       <aside className="sidebar">
         <div className="sidebar-brand">
           <div className="brand-mark">
-            <img src="/golden-terrace-logo.png" alt="Golden Terrace" className="brand-logo" />
+            <img src="/golden-terrace-logo.jpg?v=2" alt="Golden Terrace" className="brand-logo" />
           </div>
           <div>
             <div className="sidebar-client">Golden Terrace</div>
@@ -100,7 +100,9 @@ export function AppLayout() {
               <span className="sidebar-toggle-label">{sidebarToggleLabel}</span>
             </button>
             <span className="pill neutral">{language === 'ar' ? 'العربية' : 'English'}</span>
-            <div className="workspace-avatar">GT</div>
+            <div className="workspace-avatar">
+              <img src="/golden-terrace-logo.jpg?v=2" alt="Golden Terrace" className="workspace-avatar-logo" />
+            </div>
           </div>
         </header>
 

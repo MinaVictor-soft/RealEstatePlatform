@@ -114,38 +114,41 @@ export function ForecastPage() {
           </div>
           <Link className="button secondary" to={`/contracts/${id}`}>{t('backToDetails')}</Link>
         </div>
-        <div className="forecast-toolbar">
-          <div className="forecast-toolbar-left">
-            <label className="inline-select">
-              <span>{t('months')}</span>
-              <select
-                value={months}
-                onChange={(e) => setMonths(Number(e.target.value))}
-                aria-busy={loading && forecast ? 'true' : 'false'}
-              >
-                {options.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
+        <div className="forecast-control-card">
+          <div className="forecast-control-head">
+            <div>
+              <div className="page-kicker">{t('months')}</div>
+              <strong className="forecast-control-title">{t('forecastTitle')}</strong>
+            </div>
             {loading && forecast ? <div className="inline-loading">{t('loading')}</div> : null}
           </div>
-          <div className="forecast-visual">
-            <div className="forecast-bars">
-              <div className="forecast-bar paid" style={{ width: `${(forecast.currentPaid / forecast.contractValue) * 100}%` }} />
-              <div className="forecast-bar expected" style={{ width: `${(forecast.expectedCollection / forecast.contractValue) * 100}%` }} />
-              <div className="forecast-bar projected" style={{ width: `${(forecast.projectedCollected / forecast.contractValue) * 100}%` }} />
-            </div>
-            <div className="forecast-legend">
-              <span><i className="legend-dot paid" />{t('totalPaid')}</span>
-              <span><i className="legend-dot expected" />{t('expectedCollection')}</span>
-              <span><i className="legend-dot projected" />{t('projectedCollected')}</span>
-            </div>
+          <div className="forecast-segments" role="group" aria-label={t('months')}>
+            {options.map((option) => (
+              <button
+                key={option}
+                type="button"
+                className={months === option ? 'forecast-segment active' : 'forecast-segment'}
+                onClick={() => setMonths(option)}
+                aria-pressed={months === option}
+              >
+                {option}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="metric-grid">
+        <div className="forecast-visual">
+          <div className="forecast-bars">
+            <div className="forecast-bar paid" style={{ width: `${(forecast.currentPaid / forecast.contractValue) * 100}%` }} />
+            <div className="forecast-bar expected" style={{ width: `${(forecast.expectedCollection / forecast.contractValue) * 100}%` }} />
+            <div className="forecast-bar projected" style={{ width: `${(forecast.projectedCollected / forecast.contractValue) * 100}%` }} />
+          </div>
+          <div className="forecast-legend">
+            <span><i className="legend-dot paid" />{t('totalPaid')}</span>
+            <span><i className="legend-dot expected" />{t('expectedCollection')}</span>
+            <span><i className="legend-dot projected" />{t('projectedCollected')}</span>
+          </div>
+        </div>
+        <div className="forecast-summary-grid">
           <Summary label={t('expectedCollection')} value={formatMoney(forecast.expectedCollection, language)} />
           <Summary label={t('projectedCollected')} value={formatMoney(forecast.projectedCollected, language)} />
           <Summary label={t('outstandingAmount')} value={formatMoney(forecast.outstanding, language)} />
