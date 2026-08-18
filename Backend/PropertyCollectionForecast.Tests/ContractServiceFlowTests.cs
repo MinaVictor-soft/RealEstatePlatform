@@ -49,6 +49,15 @@ public sealed class ContractServiceFlowTests
             await service.GenerateScheduleAsync(create.Id);
         }
 
+        ContractResponse afterGeneration;
+        using (var db = CreateDbContext(connection))
+        {
+            var service = new ContractService(db, new ContractCalculationService());
+            afterGeneration = await service.GetContractAsync(create.Id);
+        }
+
+        Assert.Equal(ContractStatus.Active, Enum.Parse<ContractStatus>(afterGeneration.Status));
+
         IReadOnlyList<InstallmentResponse> installmentsAfterGeneration;
         using (var db = CreateDbContext(connection))
         {

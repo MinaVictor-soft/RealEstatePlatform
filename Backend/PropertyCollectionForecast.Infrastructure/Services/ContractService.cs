@@ -123,7 +123,6 @@ public sealed class ContractService : IContractService
     public async Task<ContractResponse> GenerateScheduleAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var contract = await _db.Contracts
-            .AsNoTracking()
             .Include(x => x.Customer)
             .Include(x => x.Unit)
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken)
@@ -148,6 +147,7 @@ public sealed class ContractService : IContractService
         }
 
         _db.Installments.AddRange(installments);
+        contract.Status = ContractStatus.Active;
 
         await _db.SaveChangesAsync(cancellationToken);
 
