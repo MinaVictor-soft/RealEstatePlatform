@@ -64,3 +64,7 @@ externalPort = 80
 deploymentTarget = "autoscale"
 run = ["bash", "-c", "cd dist && ASPNETCORE_URLS=http://0.0.0.0:5000 dotnet PropertyCollectionForecast.Api.dll"]
 build = ["bash", "-c", "dotnet publish Backend/PropertyCollectionForecast.Api/PropertyCollectionForecast.Api.csproj -c Release -o dist && cd Frontend && npm ci && npm run build"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 120000

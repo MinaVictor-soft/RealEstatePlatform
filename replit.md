@@ -26,8 +26,12 @@ Swagger UI available at `http://localhost:5238/swagger` when the backend is runn
 
 ## Database
 
-SQLite file `forecast.db` is created automatically in `Backend/PropertyCollectionForecast.Api/` on first run.  
-Demo seed data (2 customers, 2 units, 1 active contract with 24 monthly installments) is inserted automatically if the DB is empty.
+SQLite — no external service required.
+
+- **Development**: `forecast.db` is created next to the API project at `Backend/PropertyCollectionForecast.Api/forecast.db`. The path is resolved from `ContentRootPath` at startup so it is predictable regardless of the working directory. Setting configured in `appsettings.json`.
+- **Production**: absolute path `/tmp/forecast.db` (always writable in containers). Configured in `appsettings.Production.json`.
+
+In both environments the schema is applied via EF Core migrations and demo seed data (2 customers, 2 units, 1 active contract with 24 monthly installments) is inserted automatically if the database is empty. Deleting or moving the file is safe — the app recreates and reseeds it on the next startup.
 
 ## Project structure
 
