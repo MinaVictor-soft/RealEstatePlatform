@@ -1,355 +1,467 @@
 # Property Collection & Payment Forecast POC
 
-## المتطلبات والتصميم التقني
+## Requirements and Technical Design
 
-هذه الوثيقة تصف التطبيق الموجود حالياً في المستودع، مع فصل واضح بين ما هو مطبق في الـPOC وما هو مقترح للمستقبل.
+This document describes the implementation currently available in the repository. It separates implemented POC capabilities from future product capabilities.
 
-## 1. الهدف
+## 1. Objective
 
-تحويل بيانات العقد وإعدادات السداد إلى جدول أقساط محسوب تلقائياً، ثم تسجيل الدفعات الفعلية وحساب المدفوع والمتبقي ونسبة التحصيل والتوقعات المستقبلية.
+The POC converts contract and payment configuration data into an automatically calculated installment schedule. It then records actual payments and calculates paid amount, outstanding balance, collection percentage, and future collection forecasts.
 
-المسار الأساسي:
+Core flow:
 
 `Contract -> Payment Configuration -> Installments -> Payments -> Forecast`
 
-## 2. نطاق الـPOC الحالي
+## 2. Current POC Scope
 
-### مطبق فعلياً
+### Implemented
 
-- اختيار العملاء والوحدات من البيانات المزروعة.
-- إنشاء عقد يدوياً مع التحقق من المدخلات.
-- نوع قسط `Equal`.
-- تكرار القسط: شهري، ربع سنوي، سنوي.
-- دفعة مقدمة كنسبة أو مبلغ.
-- إنشاء جدول الأقساط.
-- عرض تفاصيل العقد والأقساط.
-- تسجيل الدفعات وتوزيعها على الأقساط بالترتيب.
-- حساب الإجمالي المدفوع والمتبقي ونسبة التحصيل.
-- توقعات العقد ولوحة التحكم.
-- فترات توقع سريعة 3 و6 و12 شهراً، أو أي عدد صحيح موجب مخصص.
-- حالات التحميل والنجاح والفراغ والخطأ.
-- اللغتان العربية والإنجليزية مع RTL/LTR.
-- Swagger/OpenAPI للـAPI.
+- Select customers and units from seeded reference data.
+- Create contracts manually with validation.
+- Equal installment type.
+- Monthly, quarterly, and yearly payment frequencies.
+- Down payment entered as a percentage or amount.
+- Generate payment schedules.
+- View contract details and installments.
+- Record payments and allocate them across installments in sequence.
+- Calculate total paid, outstanding balance, and collection percentage.
+- View contract-level and portfolio-level forecasts.
+- Select 3, 6, or 12 months, or enter any custom positive month count.
+- Loading, success, empty, and error states.
+- English and Arabic languages with LTR/RTL layout support.
+- Swagger/OpenAPI endpoint discovery.
+- SQLite database for current local and production/demo deployment.
+- EF Core migrations and automatic startup seeding.
 
-### غير مطبق حالياً
+### Not implemented in the current POC
 
-- استيراد Excel.
-- تحرير العقد بعد الإنشاء.
-- إعادة إنشاء جدول موجود.
-- مخطط شهري تفصيلي من API.
-- تسجيل دخول أو صلاحيات أو أدوار.
-- إدارة العملاء والوحدات من الواجهة.
-- إشعارات أو تذكيرات أو سجل تدقيق.
-- تكامل بنكي أو محاسبي.
+- Excel import.
+- Contract editing after creation.
+- Regenerating an existing schedule.
+- Detailed monthly time-series data from the API.
+- Authentication, authorization, and user roles.
+- Customer and unit CRUD screens.
+- Notifications, reminders, or audit logging.
+- Banking or accounting integrations.
 
-## 3. الشاشات والتدفقات
+## 3. Main Screens and User Flows
 
-### 3.1 لوحة التحكم
+### 3.1 Dashboard
 
-تعرض:
+The dashboard displays:
 
-- إجمالي العقود.
-- إجمالي قيمة العقود.
-- إجمالي المدفوع.
-- إجمالي المبلغ المتبقي.
-- التحصيل المتوقع خلال الفترة.
-- المحصّل المتوقع.
-- نسبة التحصيل المتوقعة.
-- جدول العقود وإجراءات التفاصيل والتوقعات والحذف.
+- Total contracts.
+- Total contract value.
+- Total paid.
+- Total outstanding.
+- Expected collection for the selected period.
+- Projected collected amount.
+- Projected collection percentage.
+- Contract table with customer, unit, status, financial values, forecast values, details, forecast, and delete actions.
 
-يمكن تغيير فترة التوقع من خلال 3 أو 6 أو 12 أو قيمة مخصصة موجبة.
+The forecast period supports quick options of 3, 6, and 12 months, plus any custom positive integer.
 
-### 3.2 إنشاء عقد
+### 3.2 Create Contract
 
-المدخلات:
+Inputs:
 
-- العميل.
-- الوحدة.
-- تاريخ العقد.
-- قيمة العقد.
-- الدفعة المقدمة كنسبة أو مبلغ.
-- نوع القسط.
-- التكرار.
-- عدد الأقساط.
-- تاريخ أول قسط.
+- Customer.
+- Unit.
+- Contract date.
+- Contract value.
+- Down payment percentage or amount.
+- Installment type.
+- Frequency.
+- Number of installments.
+- First installment date.
 
-النتيجة: يتم إنشاء العقد بحالة `Draft` بدون أقساط.
+A newly created contract has status `Draft` and no installments.
 
-### 3.3 تفاصيل العقد
+### 3.3 Contract Details
 
-تعرض:
+Displays:
 
-- العميل والوحدة والمشروع.
-- تاريخ العقد وقيمة العقد.
-- إعدادات السداد.
-- قيمة الدفعة المقدمة المحسوبة.
-- إجمالي المدفوع.
-- المتبقي.
-- نسبة التحصيل.
-- حالة العقد.
+- Customer, unit, and project.
+- Contract date and value.
+- Payment configuration.
+- Calculated down payment amount.
+- Total paid.
+- Outstanding amount.
+- Collection percentage.
+- Contract status.
 
-الإجراءات:
+Available actions:
 
-- إنشاء جدول الأقساط.
-- فتح الأقساط.
-- تسجيل دفعة.
-- فتح التوقعات.
-- الرجوع.
-- حذف العقد.
+- Generate payment schedule.
+- Open installments.
+- Record payment.
+- Open forecast.
+- Return to the dashboard.
+- Delete contract.
 
-### 3.4 الأقساط
+### 3.4 Installments
 
-كل قسط يعرض:
+Each installment displays:
 
-- الرقم التسلسلي.
-- تاريخ الاستحقاق.
-- المبلغ المتوقع.
-- المبلغ المدفوع.
-- المبلغ المتبقي.
-- حالة القسط.
+- Sequence number.
+- Due date.
+- Expected amount.
+- Paid amount.
+- Remaining amount.
+- Installment status.
 
-### 3.5 تسجيل دفعة
+### 3.5 Record Payment
 
-المدخلات:
+Inputs:
 
-- مبلغ الدفعة.
-- تاريخ الدفعة الاختياري.
-- المرجع الاختياري.
+- Payment amount.
+- Optional payment date.
+- Optional reference.
 
-يتم توزيع الدفعة على أقدم الأقساط التي تحتوي على مبلغ متبقٍ.
+The service allocates the payment to the earliest installments with a remaining balance.
 
-### 3.6 التوقعات
+### 3.6 Forecast
 
-تعرض:
+Displays:
 
-- قيمة العقد.
-- إجمالي المدفوع الحالي.
-- المتبقي.
-- التحصيل المتوقع خلال الفترة.
-- المحصّل المتوقع = المدفوع الحالي + المتوقع.
-- نسبة التحصيل المتوقعة.
+- Contract value.
+- Current total paid.
+- Outstanding amount.
+- Expected collection for the selected period.
+- Projected collected amount: current paid plus expected collection.
+- Projected collection percentage.
 
-الفترة يجب أن تكون عدداً صحيحاً أكبر من صفر.
+The period must be a positive integer. The UI provides 3, 6, and 12 month shortcuts and a custom period input.
 
-## 4. حالات العقد والأقساط
+## 4. Contract and Installment Statuses
 
-### حالات العقد
+### Contract statuses
 
-- `Draft`: تم إنشاء العقد ولم يتم إنشاء جدول الأقساط.
-- `Active`: تم إنشاء جدول الأقساط.
-- `Completed`: يعبّر عن العقد المكتمل عند تطبيق قاعدة الإكمال في منطق الأعمال.
+- `Draft`: The contract exists but its payment schedule has not been generated.
+- `Active`: The payment schedule has been generated.
+- `Completed`: Reserved for a fully collected contract when the completion rule is applied by business logic.
 
-### حالات القسط
+### Installment statuses
 
-- `Pending`: لم يتم دفع أي مبلغ.
-- `PartiallyPaid`: تم دفع جزء من القسط.
-- `Paid`: تم دفع القسط بالكامل.
+- `Pending`: No amount has been paid.
+- `PartiallyPaid`: A payment was recorded, but the installment is not fully paid.
+- `Paid`: The installment remaining amount is zero.
 
-## 5. قواعد الحساب الحالية
+## 5. Current Calculation Rules
 
-- المتبقي بعد الدفعة المقدمة = قيمة العقد - الدفعة المقدمة.
-- القسط المتساوي = المبلغ المتبقي / عدد الأقساط.
-- إجمالي المدفوع = مجموع الدفعات المسجلة للعقد.
-- المتبقي = قيمة العقد - إجمالي المدفوع.
-- نسبة التحصيل = إجمالي المدفوع / قيمة العقد * 100.
-- المبلغ المتوقع = مجموع الأقساط التي تقع تواريخها بين تاريخ اليوم ونهاية الفترة المختارة.
-- المحصّل المتوقع = المدفوع الحالي + المبلغ المتوقع.
-- نسبة التحصيل المتوقعة = المحصّل المتوقع / قيمة العقد * 100.
-- التكرار الشهري يضيف شهراً بين الأقساط.
-- التكرار الربع سنوي يضيف ثلاثة أشهر.
-- التكرار السنوي يضيف سنة.
-- لا تقبل الدفعة قيمة أقل من أو تساوي صفراً.
-- لا تقبل الدفعة مبلغاً أكبر من المتبقي للعقد.
-- لا يمكن تسجيل دفعة قبل إنشاء جدول الأقساط.
-- لا يمكن إنشاء جدول ثانٍ للعقد نفسه.
+- Remaining amount after down payment = contract value minus down payment.
+- Equal installment amount = remaining amount divided by number of installments.
+- Total paid = sum of payments recorded for the contract.
+- Outstanding amount = contract value minus total paid.
+- Collection percentage = total paid divided by contract value multiplied by 100.
+- Expected collection = sum of scheduled installments whose due dates are within the selected forecast period.
+- Projected collected = current paid plus expected collection.
+- Projected collection percentage = projected collected divided by contract value multiplied by 100.
+- Monthly frequency advances installment dates by one month.
+- Quarterly frequency advances installment dates by three months.
+- Yearly frequency advances installment dates by one year.
+- Payment amount must be greater than zero.
+- Payment amount cannot exceed the remaining contract amount.
+- A payment cannot be recorded before the schedule is generated.
+- A second schedule cannot be generated for the same contract.
 
-## 6. المعمارية الحالية
+## 6. Current Architecture
 
-### Backend
+### 6.1 Backend technology
 
 - ASP.NET Core 8.
-- REST Controllers.
+- REST controllers.
 - Application services and abstractions.
 - Domain entities and enums.
-- EF Core.
-- SQL Server.
+- Entity Framework Core 8.
+- SQLite for current local and production/demo use.
 - EF Core migrations.
 - Database seeding.
 - Swagger/OpenAPI.
-- Exception handling middleware.
+- Exception-handling middleware.
 - JSON string enum serialization.
 
-### Frontend
+### 6.2 Frontend technology
 
 - React 18.
 - TypeScript.
 - Vite.
 - React Router.
-- API client مركزي.
-- I18n provider مع `en.json` و`ar.json`.
-- CSS مشترك responsive.
-- مكونات حالات التحميل والخطأ والنجاح.
+- Shared API client.
+- Internationalization provider with `en.json` and `ar.json`.
+- Shared responsive CSS.
+- Loading, error, and success feedback components.
 
-### طبقات Backend
+### 6.3 Backend layers
 
-1. **API**: Controllers وتهيئة التطبيق وSwagger وMiddleware.
-2. **Application**: عقود الطلب/الاستجابة، واجهات الخدمات، الاستثناءات ومنطق الحساب المجرد.
-3. **Domain**: الكيانات والتعدادات وقواعد النموذج.
-4. **Infrastructure**: DbContext، إعداد SQL Server، Migrations، Seeding، و`ContractService`.
+1. **API layer**: controllers, application startup, Swagger, CORS, static files, SPA fallback, and middleware.
+2. **Application layer**: request/response DTOs, service interfaces, calculation interface, and domain validation exceptions.
+3. **Domain layer**: entities, enums, and core model definitions.
+4. **Infrastructure layer**: EF Core DbContext, SQLite registration, migrations, seeding, and `ContractService`.
 
-### تدفق الطلب
+### 6.4 Request flow
 
-1. تستدعي الواجهة API client.
-2. يستقبل Controller الطلب ويحوّله إلى DTO.
-3. ينفذ `ContractService` العملية.
-4. يقرأ أو يحفظ من خلال `ForecastDbContext`.
-5. يستخدم `ContractCalculationService` للتحقق والحساب.
-6. تعاد النتيجة كـJSON.
-7. يحول Exception Middleware الأخطاء إلى استجابات مفهومة.
+1. A frontend page calls the shared API client.
+2. An API controller binds the request and applies request validation.
+3. `ContractService` executes the business operation.
+4. `ForecastDbContext` reads or persists data through EF Core.
+5. `ContractCalculationService` validates configuration and performs calculations.
+6. The service maps domain objects to response DTOs.
+7. The API returns JSON.
+8. Exception middleware converts known errors into client-readable Problem Details responses.
 
-### بدء تشغيل Backend
+### 6.5 Startup and deployment behavior
 
-- تطبيق Migrations عند بدء التشغيل.
-- تشغيل Seeder للعملاء والوحدات التجريبية.
-- تسجيل Controllers والخدمات وDbContext.
-- تشغيل Swagger UI.
+- The API applies pending EF Core migrations on startup.
+- The database seeder creates required demo customers and units.
+- The API registers controllers, services, DbContext, CORS, and Swagger.
+- The Replit deployment builds the backend into `dist`.
+- The frontend build outputs static assets into `dist/wwwroot`.
+- Production runs the published API from `dist` and serves the frontend through ASP.NET Core static files and SPA fallback.
+- The SQLite connection uses `Data Source=forecast.db`, so the database file is resolved relative to the running application working directory.
 
-## 7. نموذج البيانات
+## 7. Database Design
 
-### Customer
+### 7.1 Database provider
 
-- Id
-- Name
-- Phone
-- Email
-- Contracts
+The current production/demo database provider is SQLite through EF Core:
 
-### Unit
+```text
+Data Source=forecast.db
+```
 
-- Id
-- ProjectName
-- Code
-- Contracts
+The database is created and migrated automatically when the API starts. The SQLite file is suitable for the current POC and low-traffic deployment. A server database should be considered before multi-instance or high-concurrency production usage.
 
-### Contract
+### 7.2 Customer table/entity
 
-- Id
-- CustomerId
-- UnitId
-- ContractDate
-- ContractValue
-- DownPaymentPercentage
-- DownPaymentAmount
-- InstallmentType
-- Frequency
-- NumberOfInstallments
-- FirstInstallmentDate
-- Status
-- Installments
-- Payments
+| Field | Type/meaning |
+| --- | --- |
+| Id | GUID primary key |
+| Name | Customer name |
+| Phone | Optional phone number |
+| Email | Optional email address |
+| Contracts | One-to-many relationship to contracts |
 
-### Installment
+### 7.3 Unit table/entity
 
-- Id
-- ContractId
-- SequenceNumber
-- DueDate
-- ExpectedAmount
-- PaidAmount
-- RemainingAmount
-- Status
+| Field | Type/meaning |
+| --- | --- |
+| Id | GUID primary key |
+| ProjectName | Project or development name |
+| Code | Unit code |
+| Contracts | One-to-many relationship to contracts |
 
-### Payment
+### 7.4 Contract table/entity
 
-- Id
-- ContractId
-- PaymentDate
-- Amount
-- Reference
+| Field | Type/meaning |
+| --- | --- |
+| Id | GUID primary key |
+| CustomerId | Required foreign key to Customer |
+| UnitId | Required foreign key to Unit |
+| ContractDate | Contract date |
+| ContractValue | Total contract value |
+| DownPaymentPercentage | Optional percentage from 0 to 100 |
+| DownPaymentAmount | Optional fixed down payment amount |
+| InstallmentType | Currently `Equal` |
+| Frequency | `Monthly`, `Quarterly`, or `Yearly` |
+| NumberOfInstallments | Positive installment count |
+| FirstInstallmentDate | First scheduled due date |
+| Status | `Draft`, `Active`, or `Completed` |
+| Installments | One-to-many relationship to Installment |
+| Payments | One-to-many relationship to Payment |
 
-العلاقة الحالية بين Payment وInstallment غير مباشرة؛ يتم توزيع الدفعة داخل الخدمة على الأقساط حسب الترتيب.
+### 7.5 Installment table/entity
 
-## 8. واجهات API الحالية
+| Field | Type/meaning |
+| --- | --- |
+| Id | GUID primary key |
+| ContractId | Required foreign key to Contract |
+| SequenceNumber | Installment order |
+| DueDate | Expected payment date |
+| ExpectedAmount | Calculated installment amount |
+| PaidAmount | Amount allocated to the installment |
+| RemainingAmount | Expected amount minus paid amount |
+| Status | `Pending`, `PartiallyPaid`, or `Paid` |
 
-| Method | Endpoint | الوظيفة |
+### 7.6 Payment table/entity
+
+| Field | Type/meaning |
+| --- | --- |
+| Id | GUID primary key |
+| ContractId | Required foreign key to Contract |
+| PaymentDate | Actual payment date |
+| Amount | Recorded payment amount |
+| Reference | Optional payment reference |
+
+Payments currently relate to installments indirectly. The application service allocates each payment across installments in sequence. There is no separate Payment-to-Installment allocation table in the current POC.
+
+### 7.7 Relationships
+
+- Customer has many Contracts.
+- Unit has many Contracts.
+- Contract has many Installments.
+- Contract has many Payments.
+- Payments are allocated to Installments in application logic.
+
+## 8. Current API Design
+
+Base URL:
+
+```text
+/api/contracts
+```
+
+| Method | Endpoint | Purpose |
 | --- | --- | --- |
-| GET | `/api/contracts` | عرض العقود |
-| GET | `/api/contracts/dashboard?months=3` | مؤشرات لوحة التحكم وتوقعات العقود |
-| POST | `/api/contracts` | إنشاء عقد |
-| GET | `/api/contracts/{id}` | تفاصيل العقد |
-| DELETE | `/api/contracts/{id}` | حذف العقد |
-| POST | `/api/contracts/{id}/generate-schedule` | إنشاء جدول الأقساط |
-| GET | `/api/contracts/{id}/installments` | عرض الأقساط |
-| POST | `/api/contracts/{id}/payments` | تسجيل دفعة |
-| GET | `/api/contracts/{id}/summary` | ملخص العقد، ويعيد بيانات العقد الحالية |
-| GET | `/api/contracts/{id}/forecast?months=3` | توقعات العقد |
+| GET | `/api/contracts` | List contracts with customer, unit, and payment totals |
+| GET | `/api/contracts/dashboard?months=3` | Portfolio KPIs, contract rows, and forecasts |
+| POST | `/api/contracts` | Create a contract |
+| GET | `/api/contracts/{id}` | Return contract details and calculated financial values |
+| GET | `/api/contracts/{id}/summary` | Return the current contract summary |
+| DELETE | `/api/contracts/{id}` | Delete a contract and its related data |
+| POST | `/api/contracts/{id}/generate-schedule` | Generate installments from payment configuration |
+| GET | `/api/contracts/{id}/installments` | Return the contract payment schedule |
+| POST | `/api/contracts/{id}/payments` | Record and allocate an actual payment |
+| GET | `/api/contracts/{id}/forecast?months=3` | Return a contract forecast |
 
-قيمة `months` في لوحة التحكم والتوقعات يجب أن تكون عدداً صحيحاً موجباً. الرقم 3 في المثال ليس قيداً ثابتاً.
+The `months` query value must be a positive integer. The value `3` is an example, not a fixed limitation.
 
-لا يوجد حالياً endpoint باسم `/api/import/excel`.
+There is currently no `/api/import/excel` endpoint.
 
-## 9. التحقق والأخطاء
+### 8.1 Create contract request
 
-- قيمة العقد أكبر من صفر.
-- عدد الأقساط أكبر من صفر.
-- تاريخ أول قسط مطلوب.
-- النسبة بين 0 و100.
-- العميل والوحدة يجب أن يكونا موجودين.
-- العقد غير الموجود يعيد خطأ Not Found.
-- أخطاء التحقق تعاد في صيغة Problem Details.
-- الواجهة تعرض Loading وError وRetry وSuccess وEmpty states.
+```json
+{
+  "customerId": "guid",
+  "unitId": "guid",
+  "contractDate": "2026-08-18",
+  "contractValue": 3600000,
+  "downPaymentPercentage": 20,
+  "downPaymentAmount": null,
+  "installmentType": "Equal",
+  "frequency": "Monthly",
+  "numberOfInstallments": 24,
+  "firstInstallmentDate": "2026-09-01"
+}
+```
 
-## 10. الاختبارات والتحقق
+### 8.2 Record payment request
 
-الاختبارات المحلية تغطي:
+```json
+{
+  "amount": 120000,
+  "paymentDate": "2026-08-18",
+  "reference": "PAY-001"
+}
+```
 
-- إنشاء العقد.
-- حساب الدفعة المقدمة.
-- إنشاء الجدول.
-- التكرارات المختلفة.
-- المدفوع والمتبقي ونسبة التحصيل.
-- الدفعات الجزئية والكاملة.
-- منع الدفعات غير الصحيحة.
-- التوقعات والفترات المخصصة.
-- الحالات الأساسية.
+### 8.3 Forecast response concepts
 
-اختبار العرض المنشور يغطي:
+- `Months`
+- `ContractValue`
+- `CurrentPaid`
+- `ExpectedCollection`
+- `ProjectedCollected`
+- `Outstanding`
+- `ProjectedCollectionPercentage`
 
-- العربية والإنجليزية.
-- RTL وLTR.
-- إنشاء عقد.
-- إنشاء جدول.
-- 24 قسطاً.
-- دفعة جزئية.
-- توقع 3 و6 و12 وفترة مخصصة.
-- حذف بيانات الاختبار بعد الانتهاء.
+## 9. Validation and Error Handling
 
-## 11. خارج نطاق الـPOC والمستقبل
+- Contract value must be greater than zero.
+- Number of installments must be greater than zero.
+- First installment date is required.
+- Down payment percentage must be between 0 and 100.
+- Customer and unit must exist.
+- Payment amount must be greater than zero.
+- Payment amount cannot exceed the remaining contract amount.
+- Schedule generation requires no existing schedule and no recorded payments.
+- A missing contract returns Not Found.
+- Validation failures are returned as Problem Details.
+- The frontend exposes loading, error, retry, success, and empty states.
 
-- Import Excel مع mapping وpreview.
-- خطط milestone وhandover.
-- خصومات وفترات سماح وغرامات تأخير.
-- OCR أو استخراج العقود بالذكاء الاصطناعي.
-- إدارة المشاريع والمباني والوحدات بالكامل.
-- CRM والمبيعات والعمولات.
-- إشعارات البريد والرسائل.
-- الصلاحيات والمستخدمون وتعدد المستأجرين.
-- التكامل البنكي والمحاسبي.
-- تقارير ومخططات زمنية شهرية متقدمة.
+## 10. Configuration and Deployment
 
-## 12. معايير اكتمال الـPOC
+### Local development
 
-- يمكن إنشاء عقد يدوي.
-- يمكن توليد جدول حسب الإعدادات.
-- تعمل الشهري والربع سنوي والسنوي.
-- يمكن تسجيل الدفعات وتوزيعها.
-- تتحدث الأرصدة والحالات.
-- تعمل التوقعات للفترات السريعة والمخصصة.
-- تعرض لوحة التحكم مؤشرات المحفظة.
-- تعمل العربية والإنجليزية وRTL/LTR.
-- توجد حالات تحميل وخطأ وفراغ ونجاح.
-- يمكن تشغيل العرض الكامل خلال 5 إلى 10 دقائق.
+- Backend project: `Backend/PropertyCollectionForecast.Api`.
+- Frontend project: `Frontend`.
+- SQLite database: `forecast.db`.
+- Frontend development server proxies `/api` to the backend URL.
+- `BACKEND_URL` can override the default local backend URL.
 
-## 13. الرؤية المستقبلية
+### Replit deployment
 
-يُبنى محرك الحساب الحالي كقاعدة لمنصة مالية عقارية أوسع، مع إضافة خطط دفع قابلة للتهيئة، مراحل تسليم، خصومات، غرامات، عمولات، تكاملات، صلاحيات، وتقارير متقدمة بعد اعتماد قواعد العمل مع العميل.
+The `.replit` deployment build performs:
+
+```bash
+dotnet publish Backend/PropertyCollectionForecast.Api/PropertyCollectionForecast.Api.csproj -c Release -o dist
+cd Frontend
+npm ci
+npm run build
+```
+
+The deployment command runs:
+
+```bash
+cd dist
+ASPNETCORE_URLS=http://0.0.0.0:5238 dotnet PropertyCollectionForecast.Api.dll
+```
+
+The frontend is emitted to `dist/wwwroot`, and ASP.NET Core serves it through static files and fallback routing.
+
+## 11. Testing and Verification
+
+Automated tests cover:
+
+- Contract creation.
+- Down payment calculation.
+- Schedule generation.
+- Monthly, quarterly, and yearly frequencies.
+- Paid, outstanding, and collection percentage calculations.
+- Partial and complete payments.
+- Invalid payment rejection.
+- Forecast calculations and custom periods.
+- Core contract states.
+
+End-to-end demo verification covers:
+
+- English and Arabic.
+- LTR and RTL.
+- Dashboard loading and empty state.
+- Contract creation.
+- Schedule generation.
+- Installment table.
+- Partial payment.
+- Forecast periods 3, 6, 12, and custom periods.
+- Contract deletion and test-data cleanup.
+
+## 12. Future Scope
+
+- Excel import with mapping, validation, preview, and import results.
+- Milestone and handover payment plans.
+- Discounts, grace periods, late fees, and payment penalties.
+- OCR or AI contract extraction.
+- Full project, building, and unit management.
+- CRM, sales, and broker commission management.
+- Email and messaging notifications.
+- Users, roles, permissions, and audit logging.
+- Banking and accounting integrations.
+- Advanced reports and monthly time-series charts.
+- Migration from SQLite to SQL Server or PostgreSQL for high-concurrency production.
+
+## 13. POC Completion Criteria
+
+- A contract can be created manually.
+- A schedule can be generated from payment configuration.
+- Monthly, quarterly, and yearly frequencies work.
+- Payments can be recorded and allocated.
+- Balances and statuses update correctly.
+- Forecasts work for quick and custom periods.
+- The dashboard shows portfolio collection KPIs.
+- English, Arabic, LTR, and RTL work.
+- Loading, error, empty, and success states exist.
+- The complete demo can be presented in approximately 5 to 10 minutes.
+
+## 14. Product Direction
+
+The current calculation engine provides the foundation for a broader real-estate financial platform. Future versions can add configurable payment milestones, delivery events, discounts, penalties, commissions, integrations, permissions, auditability, and advanced reporting after the client confirms the detailed business rules.
