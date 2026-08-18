@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  font-family: Inter, "Noto Sans Arabic", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Cairo", "Noto Sans Arabic", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: #122033;
@@ -1039,14 +1039,15 @@ tbody tr:hover {
 
   [dir='rtl'] .app-shell .sidebar {
     inset-inline-start: auto;
-    inset-inline-end: 0;
-    transform: translateX(100%);
-    border-radius: 24px 0 0 24px;
+    inset-inline-end: 0;    /* left: 0 in RTL — sidebar comes from the left */
+    transform: translateX(-100%); /* slide off to the LEFT (was +100% which left 85px visible) */
+    border-radius: 0 24px 24px 0; /* right side rounded since panel is on the left */
   }
 
   .app-shell.sidebar-open .sidebar {
     transform: translateX(0);
   }
+
 
   .workspace-header {
     top: 0;
@@ -1214,7 +1215,7 @@ tbody tr:hover {
 
 /* Client demo visual system */
 :root {
-  font-family: "Trebuchet MS", "Noto Sans Arabic", "Segoe UI", sans-serif;
+  font-family: "Cairo", "Noto Sans Arabic", "Segoe UI", sans-serif;
   --bg: #f4f6f8;
   --panel: #ffffff;
   --panel-2: #f7f9fb;
