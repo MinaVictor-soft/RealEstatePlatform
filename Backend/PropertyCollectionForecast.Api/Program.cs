@@ -8,14 +8,6 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Anchor the SQLite DB to the executing assembly's directory so the path is
-// stable regardless of the working directory the process was launched from.
-// AppContext.BaseDirectory is always the folder that contains the compiled
-// assembly (e.g. bin/Debug/net8.0/ for `dotnet run`, the publish output dir
-// for deployed builds) — it never changes with the CWD.
-var dbPath = Path.Combine(AppContext.BaseDirectory, "forecast.db");
-builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
-
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>

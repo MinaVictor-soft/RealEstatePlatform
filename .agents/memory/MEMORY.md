@@ -1,0 +1,1 @@
+- [Deployment port binding](deployment-port.md) — production run command must bind to port 5238 (matches [[ports]] localPort=5238/externalPort=80); any other port silently 500s health checks.
