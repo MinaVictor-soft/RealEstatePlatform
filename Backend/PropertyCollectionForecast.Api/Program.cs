@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using PropertyCollectionForecast.Api.Middleware;
 using PropertyCollectionForecast.Application;
@@ -8,6 +7,16 @@ using PropertyCollectionForecast.Infrastructure.Seeding;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -26,9 +35,9 @@ using (var scope = app.Services.CreateScope())
     await seeder.SeedAsync();
 }
 
+app.UseCors();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();

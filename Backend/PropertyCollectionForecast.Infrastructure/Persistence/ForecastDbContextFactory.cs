@@ -8,7 +8,7 @@ public sealed class ForecastDbContextFactory : IDesignTimeDbContextFactory<Forec
     public ForecastDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ForecastDbContext>();
-        optionsBuilder.UseSqlServer("Server=.;Database=PropertyCollectionForecast;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True");
+        optionsBuilder.UseSqlite("Data Source=forecast.db");
         return new ForecastDbContext(optionsBuilder.Options);
     }
 }

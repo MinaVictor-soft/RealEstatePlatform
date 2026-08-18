@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
+namespace PropertyCollectionForecast.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -15,10 +15,10 @@ namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
                 name: "Customers",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,12 +29,12 @@ namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
                 name: "Units",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProjectName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
-                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Area = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ProjectName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
+                    Code = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    Area = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    Status = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,18 +45,18 @@ namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
                 name: "Contracts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UnitId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UnitId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ContractDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ContractValue = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    DownPaymentPercentage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    DownPaymentAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: true),
-                    InstallmentType = table.Column<int>(type: "int", nullable: false),
-                    Frequency = table.Column<int>(type: "int", nullable: false),
-                    NumberOfInstallments = table.Column<int>(type: "int", nullable: false),
+                    ContractValue = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    DownPaymentPercentage = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: true),
+                    DownPaymentAmount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: true),
+                    InstallmentType = table.Column<int>(type: "INTEGER", nullable: false),
+                    Frequency = table.Column<int>(type: "INTEGER", nullable: false),
+                    NumberOfInstallments = table.Column<int>(type: "INTEGER", nullable: false),
                     FirstInstallmentDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    Status = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,14 +79,14 @@ namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
                 name: "Installments",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ContractId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SequenceNumber = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ContractId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    SequenceNumber = table.Column<int>(type: "INTEGER", nullable: false),
                     DueDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    ExpectedAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    PaidAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    RemainingAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    ExpectedAmount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    RemainingAmount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    Status = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -103,11 +103,11 @@ namespace PropertyCollectionForecast.Infrastructure.Persistence.Migrations
                 name: "Payments",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ContractId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    ContractId = table.Column<Guid>(type: "TEXT", nullable: false),
                     PaymentDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Reference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
+                    Amount = table.Column<decimal>(type: "TEXT", precision: 18, scale: 2, nullable: false),
+                    Reference = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
                 {
