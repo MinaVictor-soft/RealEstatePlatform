@@ -1,11 +1,11 @@
 {
   "appTitle": "Property Collection & Payment Forecast",
   "overview": "Overview",
-  "overviewHint": "Monitor contracts, collections, and forecasted cash flow.",
+  "overviewHint": "Track portfolio collections and future cash flow.",
   "summary": "Summary",
   "createContract": "Create Contract",
   "dashboard": "Dashboard",
-  "allContracts": "All contracts and forecasts",
+  "allContracts": "Collection Overview",
   "totalContracts": "Total Contracts",
   "totalContractValue": "Total Contract Value",
   "totalOutstanding": "Total Outstanding",

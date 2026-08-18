@@ -1192,3 +1192,200 @@ tbody tr:hover {
 [dir='rtl'] .detail-row {
   flex-direction: row-reverse;
 }
+
+/* Client demo visual system */
+:root {
+  font-family: "Trebuchet MS", "Noto Sans Arabic", "Segoe UI", sans-serif;
+  --bg: #f4f6f8;
+  --panel: #ffffff;
+  --panel-2: #f7f9fb;
+  --border: #e2e7ec;
+  --text: #17212b;
+  --muted: #6b7785;
+  --primary: #176b68;
+  --primary-2: #0f514f;
+  --shadow: 0 12px 32px rgba(23, 33, 43, 0.06);
+  --radius: 12px;
+}
+
+body {
+  background: radial-gradient(circle at 100% 0, #e8f1ef 0, transparent 32rem), var(--bg);
+}
+
+.sidebar {
+  width: 252px;
+  background: #142c35;
+  padding: 1.35rem 1rem;
+  box-shadow: 12px 0 28px rgba(20, 44, 53, 0.12);
+}
+
+.sidebar-brand {
+  background: transparent;
+  padding: 0.65rem 0.5rem 1.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 0;
+}
+
+.brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+}
+
+.sidebar-section,
+.sidebar-label {
+  margin-inline: 0.5rem;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.sidebar-nav a {
+  border-radius: 9px;
+  padding: 0.72rem 0.8rem;
+}
+
+.sidebar-nav a.active {
+  background: #d4a24c;
+  border-color: #d4a24c;
+  color: #142c35;
+  font-weight: 800;
+}
+
+.workspace-header {
+  padding: 1rem max(1.5rem, calc((100% - 1240px) / 2));
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.workspace-breadcrumb,
+.page-kicker {
+  color: var(--primary);
+}
+
+.workspace-title {
+  font-size: 1rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.content {
+  width: min(1240px, calc(100% - 3rem));
+  margin: 2rem auto 3rem;
+}
+
+.panel {
+  padding: 1.6rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.page-title h1 {
+  font-size: clamp(1.7rem, 2.4vw, 2.35rem);
+  letter-spacing: 0;
+}
+
+.metric-grid {
+  gap: 0.8rem;
+}
+
+.metric-card {
+  border-radius: 10px;
+  padding: 1.05rem;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(23, 33, 43, 0.035);
+}
+
+.metric-card:first-child,
+.metric-card:nth-child(2) {
+  border-top: 3px solid #176b68;
+}
+
+.metric-card:nth-child(3),
+.metric-card:nth-child(4) {
+  border-top: 3px solid #d4a24c;
+}
+
+.metric-value {
+  color: #142c35;
+  font-size: 1.25rem;
+}
+
+.forecast-control-card,
+.forecast-visual {
+  border-radius: 10px;
+  background: #f7f9fb;
+  box-shadow: none;
+}
+
+.forecast-visual {
+  padding: 1.35rem;
+  border-left: 4px solid var(--primary);
+}
+
+.forecast-segment {
+  border-radius: 8px;
+  height: 38px;
+}
+
+button, .button {
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+button:not(.secondary), .button:not(.secondary) {
+  background: var(--primary);
+}
+
+button:not(.secondary):hover:not(:disabled),
+.button:not(.secondary):hover {
+  background: var(--primary-2);
+}
+
+table {
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 0.85rem 0.7rem;
+}
+
+thead th {
+  background: #f7f9fb;
+  color: #657381;
+  font-size: 0.74rem;
+}
+
+tbody tr:hover {
+  background: #f3faf9;
+}
+
+.subpanel {
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.form-grid input,
+.form-grid select,
+.inline-select select {
+  border-radius: 8px;
+  background: #fbfcfd;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 290px;
+  }
+
+  .content {
+    width: min(100% - 2rem, 1240px);
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    width: calc(100% - 1.25rem);
+    margin-top: 1.25rem;
+  }
+
+  .panel {
+    padding: 1.1rem;
+  }
+}
