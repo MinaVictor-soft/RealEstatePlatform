@@ -38,7 +38,11 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd Frontend && npm run dev"
-waitForPort = 5173
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
 
 [[ports]]
 localPort = 5173
