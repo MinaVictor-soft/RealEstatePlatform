@@ -8,20 +8,13 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Resolve a relative SQLite path against ContentRootPath so the DB location is
-// predictable regardless of the working directory at startup.
-const string connKey = "ConnectionStrings:DefaultConnection";
-var rawConn = builder.Configuration[connKey] ?? "Data Source=forecast.db";
-const string dsPrefix = "Data Source=";
-if (rawConn.StartsWith(dsPrefix, StringComparison.OrdinalIgnoreCase))
-{
-    var dataSource = rawConn[dsPrefix.Length..].TrimEnd(';');
-    if (!Path.IsPathRooted(dataSource))
-    {
-        var absolutePath = Path.Combine(builder.Environment.ContentRootPath, dataSource);
-        builder.Configuration[connKey] = $"{dsPrefix}{absolutePath}";
-    }
-}
+// Anchor the SQLite DB to the executing assembly's directory so the path is
+// stable regardless of the working directory the process was launched from.
+// AppContext.BaseDirectory is always the folder that contains the compiled
+// assembly (e.g. bin/Debug/net8.0/ for `dotnet run`, the publish output dir
+// for deployed builds) — it never changes with the CWD.
+var dbPath = Path.Combine(AppContext.BaseDirectory, "forecast.db");
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Data Source={dbPath}";
 
 builder.Services.AddCors(options =>
 {
