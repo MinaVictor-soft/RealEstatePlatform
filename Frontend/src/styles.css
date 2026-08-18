@@ -824,6 +824,24 @@ tbody tr:hover {
   border-color: var(--primary);
 }
 
+.forecast-period-input {
+  width: 86px;
+  height: 42px;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  padding: 0 0.7rem;
+  background: #fff;
+  color: var(--text);
+  text-align: center;
+  font-weight: 800;
+}
+
+.forecast-segment.apply {
+  background: #d4a24c;
+  color: #142c35;
+  border-color: #d4a24c;
+}
+
 .forecast-visual {
   display: grid;
   gap: 0.95rem;
@@ -1210,6 +1228,7 @@ tbody tr:hover {
 
 body {
   background: radial-gradient(circle at 100% 0, #e8f1ef 0, transparent 32rem), var(--bg);
+  overflow-x: hidden;
 }
 
 .sidebar {
@@ -1269,6 +1288,7 @@ body {
 .content {
   width: min(1240px, calc(100% - 3rem));
   margin: 2rem auto 3rem;
+  min-width: 0;
 }
 
 .panel {
@@ -1387,5 +1407,22 @@ tbody tr:hover {
 
   .panel {
     padding: 1.1rem;
+  }
+}
+
+@media (max-width: 900px) {
+  [dir='rtl'] .app-shell {
+    flex-direction: column;
+  }
+
+  [dir='rtl'] .page-hero,
+  [dir='rtl'] .section-title,
+  [dir='rtl'] .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
   }
 }

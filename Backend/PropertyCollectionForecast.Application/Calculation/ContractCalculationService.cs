@@ -69,9 +69,9 @@ public sealed class ContractCalculationService : IContractCalculationService
 
     public ForecastResult CalculateForecast(Contract contract, int months, DateOnly asOf)
     {
-        if (months is not (1 or 3 or 6 or 12))
+        if (months <= 0)
         {
-            throw DomainValidationException.Single(nameof(months), "Forecast months must be one of 1, 3, 6, or 12.");
+            throw DomainValidationException.Single(nameof(months), "Forecast months must be greater than zero.");
         }
 
         var installments = contract.Installments.Count > 0

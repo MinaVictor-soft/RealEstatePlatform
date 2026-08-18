@@ -11,6 +11,7 @@ export function DashboardPage() {
   const { language, t } = useI18n();
   const navigate = useNavigate();
   const [months, setMonths] = useState(3);
+  const [monthsInput, setMonthsInput] = useState('3');
   const [dashboard, setDashboard] = useState<ContractsDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -49,6 +50,13 @@ export function DashboardPage() {
     }
   }
 
+  function applyMonths() {
+    const selectedMonths = Number(monthsInput);
+    if (Number.isInteger(selectedMonths) && selectedMonths > 0) {
+      setMonths(selectedMonths);
+    }
+  }
+
   const showLoading = loading && !dashboard;
   if (showLoading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={load} />;
@@ -82,12 +90,28 @@ export function DashboardPage() {
                 key={option}
                 type="button"
                 className={months === option ? 'forecast-segment active' : 'forecast-segment'}
-                onClick={() => setMonths(option)}
+                onClick={() => {
+                  setMonthsInput(String(option));
+                  setMonths(option);
+                }}
                 aria-pressed={months === option}
               >
                 {option}
               </button>
             ))}
+            <input
+              className="forecast-period-input"
+              type="number"
+              min="1"
+              step="1"
+              value={monthsInput}
+              onChange={(event) => setMonthsInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') applyMonths();
+              }}
+              aria-label={t('months')}
+            />
+            <button type="button" className="forecast-segment apply" onClick={applyMonths}>{t('apply')}</button>
           </div>
         </div>
         <div className="metric-grid">

@@ -138,7 +138,7 @@ public sealed class ContractServiceFlowTests
     }
 
     [Fact]
-    public async Task Rejects_forecast_months_outside_supported_values()
+    public async Task Supports_custom_forecast_months()
     {
         await using var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
@@ -152,7 +152,9 @@ public sealed class ContractServiceFlowTests
 
         using var db = CreateDbContext(connection);
         var service = new ContractService(db, new ContractCalculationService());
-        await Assert.ThrowsAsync<DomainValidationException>(() => service.GetForecastAsync(contractId, 2));
+        var forecast = await service.GetForecastAsync(contractId, 2);
+
+        Assert.Equal(2, forecast.Months);
     }
 
     private static readonly Guid CustomerId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
