@@ -1,253 +1,355 @@
-Property Collection & Payment Forecast POC
+# Property Collection & Payment Forecast POC
 
-Requirements & Technical Design — Client Demo
+## المتطلبات والتصميم التقني
 
-Focused POC: Contract → Configurable Payment Plan → Installments → Payments → Collection Forecast
+هذه الوثيقة تصف التطبيق الموجود حالياً في المستودع، مع فصل واضح بين ما هو مطبق في الـPOC وما هو مقترح للمستقبل.
 
-## 1. POC Objective
+## 1. الهدف
 
-The purpose of this POC is to demonstrate a focused solution to the client's core collection-management problem: turning contract and payment-plan information into an automatically calculated installment schedule, tracking actual payments, and forecasting how much will be collected over the next 1, 3, 6, or 12 months.
+تحويل بيانات العقد وإعدادات السداد إلى جدول أقساط محسوب تلقائياً، ثم تسجيل الدفعات الفعلية وحساب المدفوع والمتبقي ونسبة التحصيل والتوقعات المستقبلية.
 
-The POC is intentionally limited in scope. It is a convincing business demonstration, not the full property-management product.
+المسار الأساسي:
 
-## 2. Business Problem
+`Contract -> Payment Configuration -> Installments -> Payments -> Forecast`
 
-- Contracts contain payment obligations that must be tracked over time.
-- Management needs to know what is due in a given month and what is expected to be collected in future periods.
-- Actual payments need to be compared with scheduled amounts.
-- The system should calculate outstanding balances and collection percentages automatically.
-- Different contracts may use different payment configurations; the calculation should not depend on hard-coded installment amounts.
-## 3. POC Scope
+## 2. نطاق الـPOC الحالي
 
-## 4. Client Contract Reference
+### مطبق فعلياً
 
-The supplied contract shows a payment schedule containing a down-payment amount followed by periodic installments and a later payment. For example, the visible schedule includes a 1,000,000 EGP down payment, recurring 147,121 EGP quarterly installments, and a 372,660 EGP later payment. The contract also contains clauses related to payment deadlines and consequences of delayed payment.
+- اختيار العملاء والوحدات من البيانات المزروعة.
+- إنشاء عقد يدوياً مع التحقق من المدخلات.
+- نوع قسط `Equal`.
+- تكرار القسط: شهري، ربع سنوي، سنوي.
+- دفعة مقدمة كنسبة أو مبلغ.
+- إنشاء جدول الأقساط.
+- عرض تفاصيل العقد والأقساط.
+- تسجيل الدفعات وتوزيعها على الأقساط بالترتيب.
+- حساب الإجمالي المدفوع والمتبقي ونسبة التحصيل.
+- توقعات العقد ولوحة التحكم.
+- فترات توقع سريعة 3 و6 و12 شهراً، أو أي عدد صحيح موجب مخصص.
+- حالات التحميل والنجاح والفراغ والخطأ.
+- اللغتان العربية والإنجليزية مع RTL/LTR.
+- Swagger/OpenAPI للـAPI.
 
-This contract is used as a real-world reference for the POC's payment-schedule concept. The exact business rules should be confirmed with the client before production implementation.
+### غير مطبق حالياً
 
-## 5. Main User Journey
+- استيراد Excel.
+- تحرير العقد بعد الإنشاء.
+- إعادة إنشاء جدول موجود.
+- مخطط شهري تفصيلي من API.
+- تسجيل دخول أو صلاحيات أو أدوار.
+- إدارة العملاء والوحدات من الواجهة.
+- إشعارات أو تذكيرات أو سجل تدقيق.
+- تكامل بنكي أو محاسبي.
 
-1. Open the dashboard and see the overall collection position.
+## 3. الشاشات والتدفقات
 
-2. Open a contract and review contract value, paid amount, outstanding amount and collection percentage.
+### 3.1 لوحة التحكم
 
-3. Review the generated payment schedule.
+تعرض:
 
-4. Record an actual payment.
+- إجمالي العقود.
+- إجمالي قيمة العقود.
+- إجمالي المدفوع.
+- إجمالي المبلغ المتبقي.
+- التحصيل المتوقع خلال الفترة.
+- المحصّل المتوقع.
+- نسبة التحصيل المتوقعة.
+- جدول العقود وإجراءات التفاصيل والتوقعات والحذف.
 
-5. The system recalculates paid, remaining and collection percentage.
+يمكن تغيير فترة التوقع من خلال 3 أو 6 أو 12 أو قيمة مخصصة موجبة.
 
-6. Open Forecast and choose 1, 3, 6 or 12 months.
+### 3.2 إنشاء عقد
 
-7. The system calculates expected future collections from the scheduled installments.
+المدخلات:
 
-## 6. Core Screens
+- العميل.
+- الوحدة.
+- تاريخ العقد.
+- قيمة العقد.
+- الدفعة المقدمة كنسبة أو مبلغ.
+- نوع القسط.
+- التكرار.
+- عدد الأقساط.
+- تاريخ أول قسط.
 
-### 6.1 Dashboard
+النتيجة: يتم إنشاء العقد بحالة `Draft` بدون أقساط.
 
-- Total Contract Value
-- Total Collected
-- Total Outstanding
-- Expected This Month
-- Expected Next 3 Months
-- Overall Collection %
-- Monthly Expected Collection chart
-### 6.2 Contracts
+### 3.3 تفاصيل العقد
 
-A simple list containing:
+تعرض:
 
-- Customer
-- Unit
-- Contract Value
-- Paid
-- Outstanding
-- Collection %
-- Status
-### 6.3 Contract Details
+- العميل والوحدة والمشروع.
+- تاريخ العقد وقيمة العقد.
+- إعدادات السداد.
+- قيمة الدفعة المقدمة المحسوبة.
+- إجمالي المدفوع.
+- المتبقي.
+- نسبة التحصيل.
+- حالة العقد.
 
-- Customer and unit information
-- Contract date and contract value
-- Current paid amount
-- Outstanding amount
-- Collection percentage
-- Payment configuration
-- Payment schedule
-- Actual payments
-### 6.4 Create Contract
+الإجراءات:
 
-- Customer
-- Project
-- Unit
-- Contract Date
-- Contract Value
-- Down Payment
-- Installment Type
+- إنشاء جدول الأقساط.
+- فتح الأقساط.
+- تسجيل دفعة.
+- فتح التوقعات.
+- الرجوع.
+- حذف العقد.
+
+### 3.4 الأقساط
+
+كل قسط يعرض:
+
+- الرقم التسلسلي.
+- تاريخ الاستحقاق.
+- المبلغ المتوقع.
+- المبلغ المدفوع.
+- المبلغ المتبقي.
+- حالة القسط.
+
+### 3.5 تسجيل دفعة
+
+المدخلات:
+
+- مبلغ الدفعة.
+- تاريخ الدفعة الاختياري.
+- المرجع الاختياري.
+
+يتم توزيع الدفعة على أقدم الأقساط التي تحتوي على مبلغ متبقٍ.
+
+### 3.6 التوقعات
+
+تعرض:
+
+- قيمة العقد.
+- إجمالي المدفوع الحالي.
+- المتبقي.
+- التحصيل المتوقع خلال الفترة.
+- المحصّل المتوقع = المدفوع الحالي + المتوقع.
+- نسبة التحصيل المتوقعة.
+
+الفترة يجب أن تكون عدداً صحيحاً أكبر من صفر.
+
+## 4. حالات العقد والأقساط
+
+### حالات العقد
+
+- `Draft`: تم إنشاء العقد ولم يتم إنشاء جدول الأقساط.
+- `Active`: تم إنشاء جدول الأقساط.
+- `Completed`: يعبّر عن العقد المكتمل عند تطبيق قاعدة الإكمال في منطق الأعمال.
+
+### حالات القسط
+
+- `Pending`: لم يتم دفع أي مبلغ.
+- `PartiallyPaid`: تم دفع جزء من القسط.
+- `Paid`: تم دفع القسط بالكامل.
+
+## 5. قواعد الحساب الحالية
+
+- المتبقي بعد الدفعة المقدمة = قيمة العقد - الدفعة المقدمة.
+- القسط المتساوي = المبلغ المتبقي / عدد الأقساط.
+- إجمالي المدفوع = مجموع الدفعات المسجلة للعقد.
+- المتبقي = قيمة العقد - إجمالي المدفوع.
+- نسبة التحصيل = إجمالي المدفوع / قيمة العقد * 100.
+- المبلغ المتوقع = مجموع الأقساط التي تقع تواريخها بين تاريخ اليوم ونهاية الفترة المختارة.
+- المحصّل المتوقع = المدفوع الحالي + المبلغ المتوقع.
+- نسبة التحصيل المتوقعة = المحصّل المتوقع / قيمة العقد * 100.
+- التكرار الشهري يضيف شهراً بين الأقساط.
+- التكرار الربع سنوي يضيف ثلاثة أشهر.
+- التكرار السنوي يضيف سنة.
+- لا تقبل الدفعة قيمة أقل من أو تساوي صفراً.
+- لا تقبل الدفعة مبلغاً أكبر من المتبقي للعقد.
+- لا يمكن تسجيل دفعة قبل إنشاء جدول الأقساط.
+- لا يمكن إنشاء جدول ثانٍ للعقد نفسه.
+
+## 6. المعمارية الحالية
+
+### Backend
+
+- ASP.NET Core 8.
+- REST Controllers.
+- Application services and abstractions.
+- Domain entities and enums.
+- EF Core.
+- SQL Server.
+- EF Core migrations.
+- Database seeding.
+- Swagger/OpenAPI.
+- Exception handling middleware.
+- JSON string enum serialization.
+
+### Frontend
+
+- React 18.
+- TypeScript.
+- Vite.
+- React Router.
+- API client مركزي.
+- I18n provider مع `en.json` و`ar.json`.
+- CSS مشترك responsive.
+- مكونات حالات التحميل والخطأ والنجاح.
+
+### طبقات Backend
+
+1. **API**: Controllers وتهيئة التطبيق وSwagger وMiddleware.
+2. **Application**: عقود الطلب/الاستجابة، واجهات الخدمات، الاستثناءات ومنطق الحساب المجرد.
+3. **Domain**: الكيانات والتعدادات وقواعد النموذج.
+4. **Infrastructure**: DbContext، إعداد SQL Server، Migrations، Seeding، و`ContractService`.
+
+### تدفق الطلب
+
+1. تستدعي الواجهة API client.
+2. يستقبل Controller الطلب ويحوّله إلى DTO.
+3. ينفذ `ContractService` العملية.
+4. يقرأ أو يحفظ من خلال `ForecastDbContext`.
+5. يستخدم `ContractCalculationService` للتحقق والحساب.
+6. تعاد النتيجة كـJSON.
+7. يحول Exception Middleware الأخطاء إلى استجابات مفهومة.
+
+### بدء تشغيل Backend
+
+- تطبيق Migrations عند بدء التشغيل.
+- تشغيل Seeder للعملاء والوحدات التجريبية.
+- تسجيل Controllers والخدمات وDbContext.
+- تشغيل Swagger UI.
+
+## 7. نموذج البيانات
+
+### Customer
+
+- Id
+- Name
+- Phone
+- Email
+- Contracts
+
+### Unit
+
+- Id
+- ProjectName
+- Code
+- Contracts
+
+### Contract
+
+- Id
+- CustomerId
+- UnitId
+- ContractDate
+- ContractValue
+- DownPaymentPercentage
+- DownPaymentAmount
+- InstallmentType
 - Frequency
-- Number of Installments
-- First Installment Date
-### 6.5 Forecast
+- NumberOfInstallments
+- FirstInstallmentDate
+- Status
+- Installments
+- Payments
 
-Forecast period options: Next Month, Next 3 Months, Next 6 Months, Next 12 Months.
+### Installment
 
-- Expected Collection
-- Projected Collected
-- Outstanding
-- Projected Collection %
-- Monthly forecast chart
-## 7. Generic Payment Configuration
+- Id
+- ContractId
+- SequenceNumber
+- DueDate
+- ExpectedAmount
+- PaidAmount
+- RemainingAmount
+- Status
 
-The POC must calculate installments from configuration. Installment amounts must not be hard-coded.
+### Payment
 
-Example:
+- Id
+- ContractId
+- PaymentDate
+- Amount
+- Reference
 
-- Contract Value = 3,600,000 EGP
-- Down Payment = 20%
-- Installment Type = Equal
-- Frequency = Monthly
-- Number of Installments = 24
-- Start Date = 01/09/2026
-The engine calculates the down payment, remaining balance, installment amount and due dates, then generates the schedule.
+العلاقة الحالية بين Payment وInstallment غير مباشرة؛ يتم توزيع الدفعة داخل الخدمة على الأقساط حسب الترتيب.
 
-## 8. Calculation Rules
+## 8. واجهات API الحالية
 
-Important: the production version should support more complex plans such as milestone-based payments, quarterly payments, handover payments, discounts and other client-specific rules. Those are intentionally not required for the first POC.
-
-## 9. Core Data Model
-
-## 10. Backend Design
-
-Recommended stack: ASP.NET Core 8 + EF Core + PostgreSQL + REST APIs + Swagger.
-
-Simple POC architecture:
-
-- API Layer
-- Application Layer
-- Domain Layer
-- Infrastructure / Persistence
-Avoid unnecessary complexity for the POC: no full CQRS/MediatR/DDD implementation is required unless it becomes useful for a specific calculation or extension.
-
-## 11. Key API Endpoints
-
-## 12. Excel Import — POC Approach
-
-For the first demo, the import can target the client's current Excel structure rather than building a full generic mapping engine.
-
-- Upload Excel
-- Validate required columns
-- Preview records
-- Import supported records
-- Show imported contracts on the dashboard
-The supplied workbook was available, but its indexed content was not readable in the file extraction layer; therefore no unverified Excel column names are assumed in this document. The contract PDF is the current verified source for the example payment schedule.
-
-## 13. Frontend Technology
-
-Recommended: Angular with a simple component-based UI and a chart library. The POC should prioritize clarity and demo flow over visual complexity.
-
-## 14. Demo Story
-
-1. Start with the client's imported contract data.
-1. Open a contract and show its financial position.
-1. Show how the payment configuration generates the schedule.
-1. Record a payment and show the live balance update.
-1. Open Forecast and select Next 3 Months.
-1. Show the expected collection figure and monthly chart.
-1. Change the payment configuration and regenerate the schedule to demonstrate that the system is configurable rather than hard-coded.
-## 15. Out of Scope for This POC
-
-- Full property/land/building management
-- Construction cost management
-- Iron/steel/material cost tracking
-- Broker commission management
-- Full sales workflow
-- CRM
-- Contract OCR / AI extraction
-- Notifications and reminders
-- Advanced role/permission management
-- Bank integration
-- Production-grade multi-tenant architecture
-## 16. Future Product Direction
-
-The POC should be implemented so that the calculation concept can later expand into a generic property financial platform. Future configuration may cover different payment frequencies, milestone payments, handover percentages, discounts, grace periods, broker commissions, project costs and other configurable business rules.
-
-## 17. Definition of Done for the POC
-
-- Client Excel data can be loaded into the demo.
-- A contract can be created manually.
-- Payment configuration generates a schedule.
-- Actual payments can be recorded.
-- Paid and outstanding amounts update correctly.
-- Forecast can be viewed for 1/3/6/12 months.
-- Dashboard shows portfolio collection KPIs.
-- The demo is published and accessible through a shareable URL.
-- The complete demo can be presented in approximately 5–10 minutes.
-## 18. Recommended Implementation Sequence
-
-1. Create ASP.NET Core solution and database model.
-
-2. Implement Payment Configuration and Calculation Engine.
-
-3. Generate Installment Schedule.
-
-4. Implement Payments and balance calculations.
-
-5. Implement Forecast APIs.
-
-6. Build Angular Contract and Schedule screens.
-
-7. Build Forecast and Dashboard screens.
-
-8. Add simplified Excel import.
-
-9. Seed the demo with client-relevant data.
-
-10. Publish the POC for the client.
-
-POC principle: Keep it simple, demonstrate real client value, and make the payment calculation configurable.
-
-
-| Area | Included | Purpose |
+| Method | Endpoint | الوظيفة |
 | --- | --- | --- |
-| Dashboard | Yes | Portfolio-level collection overview and monthly forecast |
-| Contracts | Yes | View contracts and open contract details |
-| Manual Contract | Yes | Create a new contract with configurable payment terms |
-| Payment Configuration | Yes | Generate installments from rules, not fixed amounts |
-| Payment Schedule | Yes | Show expected, paid, remaining and status |
-| Actual Payments | Yes | Record payments and update balances |
-| Forecast | Yes | Estimate collections for 1/3/6/12 months |
-| Excel Import | Yes — simplified | Load the client's available data for the demo |
-| Contract PDF OCR/AI extraction | No | Potential future enhancement |
-| Full CRM / Broker / Construction Cost modules | No | Outside this focused POC |
+| GET | `/api/contracts` | عرض العقود |
+| GET | `/api/contracts/dashboard?months=3` | مؤشرات لوحة التحكم وتوقعات العقود |
+| POST | `/api/contracts` | إنشاء عقد |
+| GET | `/api/contracts/{id}` | تفاصيل العقد |
+| DELETE | `/api/contracts/{id}` | حذف العقد |
+| POST | `/api/contracts/{id}/generate-schedule` | إنشاء جدول الأقساط |
+| GET | `/api/contracts/{id}/installments` | عرض الأقساط |
+| POST | `/api/contracts/{id}/payments` | تسجيل دفعة |
+| GET | `/api/contracts/{id}/summary` | ملخص العقد، ويعيد بيانات العقد الحالية |
+| GET | `/api/contracts/{id}/forecast?months=3` | توقعات العقد |
 
+قيمة `months` في لوحة التحكم والتوقعات يجب أن تكون عدداً صحيحاً موجباً. الرقم 3 في المثال ليس قيداً ثابتاً.
 
-| Rule | Formula |
-| --- | --- |
-| Remaining after down payment | Contract Value − Down Payment |
-| Equal installment | Remaining Amount ÷ Number of Installments |
-| Paid amount | Sum of recorded payments allocated to the contract/installment |
-| Outstanding | Contract Value − Total Paid |
-| Collection % | (Total Paid ÷ Contract Value) × 100 |
-| Expected collection for a period | Sum of scheduled installment amounts whose due dates fall inside the selected period |
-| Projected collected | Current Paid + Expected Future Collection |
-| Projected collection % | (Projected Collected ÷ Contract Value) × 100 |
+لا يوجد حالياً endpoint باسم `/api/import/excel`.
 
+## 9. التحقق والأخطاء
 
-| Entity | Key Fields | Relationship | Purpose |
-| --- | --- | --- | --- |
-| Customer | Id, Name, Phone, Email | Has many Contracts | Customer identity |
-| Unit | Id, Project, Code, Area, Price, Status | Has many Contracts over time | Sold property unit |
-| Contract | Id, CustomerId, UnitId, Date, TotalValue, Status, Payment Configuration | Belongs to Customer and Unit | Commercial agreement |
-| Installment | Id, ContractId, DueDate, ExpectedAmount, PaidAmount, Status | Belongs to Contract | Expected payment obligation |
-| Payment | Id, ContractId, PaymentDate, Amount, Type, Reference | Belongs to Contract | Actual collection |
+- قيمة العقد أكبر من صفر.
+- عدد الأقساط أكبر من صفر.
+- تاريخ أول قسط مطلوب.
+- النسبة بين 0 و100.
+- العميل والوحدة يجب أن يكونا موجودين.
+- العقد غير الموجود يعيد خطأ Not Found.
+- أخطاء التحقق تعاد في صيغة Problem Details.
+- الواجهة تعرض Loading وError وRetry وSuccess وEmpty states.
 
+## 10. الاختبارات والتحقق
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| GET | /api/contracts | List contracts |
-| GET | /api/contracts/{id} | Get contract details |
-| POST | /api/contracts | Create contract |
-| POST | /api/contracts/{id}/generate-schedule | Generate installments from configuration |
-| GET | /api/contracts/{id}/installments | Get payment schedule |
-| POST | /api/contracts/{id}/payments | Record actual payment |
-| GET | /api/contracts/{id}/summary | Get financial summary |
-| GET | /api/contracts/{id}/forecast?months=3 | Get collection forecast |
-| POST | /api/import/excel | Simplified client-data import |
+الاختبارات المحلية تغطي:
+
+- إنشاء العقد.
+- حساب الدفعة المقدمة.
+- إنشاء الجدول.
+- التكرارات المختلفة.
+- المدفوع والمتبقي ونسبة التحصيل.
+- الدفعات الجزئية والكاملة.
+- منع الدفعات غير الصحيحة.
+- التوقعات والفترات المخصصة.
+- الحالات الأساسية.
+
+اختبار العرض المنشور يغطي:
+
+- العربية والإنجليزية.
+- RTL وLTR.
+- إنشاء عقد.
+- إنشاء جدول.
+- 24 قسطاً.
+- دفعة جزئية.
+- توقع 3 و6 و12 وفترة مخصصة.
+- حذف بيانات الاختبار بعد الانتهاء.
+
+## 11. خارج نطاق الـPOC والمستقبل
+
+- Import Excel مع mapping وpreview.
+- خطط milestone وhandover.
+- خصومات وفترات سماح وغرامات تأخير.
+- OCR أو استخراج العقود بالذكاء الاصطناعي.
+- إدارة المشاريع والمباني والوحدات بالكامل.
+- CRM والمبيعات والعمولات.
+- إشعارات البريد والرسائل.
+- الصلاحيات والمستخدمون وتعدد المستأجرين.
+- التكامل البنكي والمحاسبي.
+- تقارير ومخططات زمنية شهرية متقدمة.
+
+## 12. معايير اكتمال الـPOC
+
+- يمكن إنشاء عقد يدوي.
+- يمكن توليد جدول حسب الإعدادات.
+- تعمل الشهري والربع سنوي والسنوي.
+- يمكن تسجيل الدفعات وتوزيعها.
+- تتحدث الأرصدة والحالات.
+- تعمل التوقعات للفترات السريعة والمخصصة.
+- تعرض لوحة التحكم مؤشرات المحفظة.
+- تعمل العربية والإنجليزية وRTL/LTR.
+- توجد حالات تحميل وخطأ وفراغ ونجاح.
+- يمكن تشغيل العرض الكامل خلال 5 إلى 10 دقائق.
+
+## 13. الرؤية المستقبلية
+
+يُبنى محرك الحساب الحالي كقاعدة لمنصة مالية عقارية أوسع، مع إضافة خطط دفع قابلة للتهيئة، مراحل تسليم، خصومات، غرامات، عمولات، تكاملات، صلاحيات، وتقارير متقدمة بعد اعتماد قواعد العمل مع العميل.
