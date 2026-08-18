@@ -36,8 +36,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
+app.MapFallbackToFile("index.html");
 app.Run();

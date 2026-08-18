@@ -51,3 +51,8 @@ externalPort = 5173
 [[ports]]
 localPort = 5238
 externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["bash", "-c", "cd dist && ASPNETCORE_URLS=http://0.0.0.0:5000 dotnet PropertyCollectionForecast.Api.dll"]
+build = ["bash", "-c", "dotnet publish Backend/PropertyCollectionForecast.Api/PropertyCollectionForecast.Api.csproj -c Release -o dist && cd Frontend && npm ci && npm run build"]
